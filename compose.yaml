@@ -1,0 +1,37 @@
+# A minimal, working Drupal deploy for Soveryx's git-sync - the official
+# Docker Hub `drupal` image (Apache+PHP+Drupal bundled in one container,
+# same shape as the official `wordpress` image) + a MariaDB database.
+# Deliberately not markshust/docker-drupal's own compose.yaml: that one
+# splits nginx/phpfpm/mysql/setup across 4 containers sharing one bind
+# mount and a one-shot `composer create-project` setup container - real,
+# valid Compose, but needs two things Soveryx doesn't support yet (a
+# shared volume across services in one compose group, and a one-shot
+# job-style service that runs once and exits rather than staying up).
+# This shape avoids both: one web container, one database, nothing
+# shared. Visit the site after it deploys to walk through Drupal's own
+# installer.
+services:
+  drupal:
+    image: drupal:10-apache
+    ports:
+      - "80:80"
+    volumes:
+      - drupal-data:/var/www/html/sites/default/files
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:10.11
+    expose:
+      - 3306
+    environment:
+      - MARIADB_DATABASE=drupal
+      - MARIADB_USER=drupal
+      - MARIADB_PASSWORD=drupal
+      - MARIADB_ROOT_PASSWORD=drupalroot
+    volumes:
+      - db-data:/var/lib/mysql
+
+volumes:
+  drupal-data:
+  db-data:
