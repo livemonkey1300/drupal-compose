@@ -1,0 +1,10 @@
+# Optional override for Soveryx's git-sync deploy - see compose.yaml's
+# own comment for why this repo exists. Without this file the drupal
+# service defaults to Soveryx's shared-host path-prefix routing, which
+# is currently unreachable (a known platform gap: portal.soveryx.com's
+# own tunnel routing bypasses the Ingress controller tenant apps need
+# for path-prefix mode to work at all). subdomain: gives it its own
+# real host instead, which routes correctly today.
+services:
+  drupal:
+    routing: subdomain
